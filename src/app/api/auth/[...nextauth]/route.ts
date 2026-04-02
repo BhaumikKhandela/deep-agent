@@ -1,3 +1,5 @@
+import { withErrorHandler } from "@/lib/mongodb/withErrorHandler";
+import { UserService } from "@/services/UserService";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 export const authOptions = {
@@ -33,8 +35,13 @@ export const authOptions = {
         email: string;
         image: string;
       };
-      const access_token = account?.acess_token;
+      const access_token = account?.access_token;
       const refresh_token = account?.refresh_token;
+
+      withErrorHandler(async () => {
+        const userService = UserService.getInstance();
+        await userService.createUser({ ...userData, access_token, refresh_token})
+      })();
 
       return true;
     },
@@ -64,6 +71,21 @@ export const authOptions = {
         if (account.refresh_token) {
           // store refresh token in jwt (server-side)
           token.refresh_token = account?.refresh_token;
+        }
+      }
+
+      if (user) {
+        try {
+            // If it's a new sign in, get user from DB
+            const userService = UserService.getInstance();
+            const dbUser = await userService.findByEmail(user.email);
+
+            if (dbUser) {
+                token.userId = dbUser._id.toString();
+
+            }
+        } catch (error) {
+            console.error("Error occurred while fetching user from DB:", error);
         }
       }
       return token;
