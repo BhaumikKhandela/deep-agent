@@ -1,0 +1,23 @@
+[
+  {
+    "userId": "6964dad99b60669a3e261f02",
+    "threadId": "c6db0584-1ebc-4077-86c8-83f96dad8a68",
+    "title": "New Thread",
+    "active": false,
+    "createdAt": "2026-02-17T14:33:49.631Z"
+  },
+  {
+    "userId": "6964dad99b60669a3e261f02",
+    "threadId": "e39a1cba-cd1b-47e2-b2e1-53409260d2d3",
+    "title": "New Thread",
+    "active": false,
+    "createdAt": "2026-02-17T14:38:16.791Z"
+  },
+  {
+    "userId": "6964dad99b60669a3e261f02",
+    "threadId": "e72919be-241a-49a9-a1b2-4de6f3a8edb7",
+    "title": "New Thread",
+    "active": true,
+    "createdAt": "2026-02-17T14:41:49.712Z"
+  }
+]
