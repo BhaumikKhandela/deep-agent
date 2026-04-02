@@ -49,6 +49,7 @@ export const createThreadHistoryTool = tool(
       threads.push(newThread);
 
       fs.writeFileSync(HISTORY_FILE, JSON.stringify(threads, null, 2), "utf-8");
+        return JSON.stringify(newThread);
     } catch (error) {
       console.error("Error creating thread:", error);
       return "Failed to create thread";
