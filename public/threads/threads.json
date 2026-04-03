@@ -19,5 +19,12 @@
     "title": "New Thread",
     "active": true,
     "createdAt": "2026-02-17T14:41:49.712Z"
+  },
+  {
+    "threadId": "c6de809b-b8d9-47c4-9835-d629da222f00",
+    "userId": "105382959236763958242",
+    "title": "New Thread",
+    "active": true,
+    "createdAt": "2026-04-03T17:19:23.534Z"
   }
 ]

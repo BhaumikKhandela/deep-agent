@@ -1,4 +1,5 @@
 import { withErrorHandler } from "@/lib/mongodb/withErrorHandler";
+import { getAllThreadsByUserTool } from "@/lib/tools/ThreadTools";
 import { UserService } from "@/services/UserService";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
@@ -40,10 +41,19 @@ export const authOptions = {
 
       withErrorHandler(async () => {
         const userService = UserService.getInstance();
-        await userService.createUser({ ...userData, access_token, refresh_token})
+        await userService.createUser({
+          ...userData,
+          access_token,
+          refresh_token,
+        });
       })();
 
-      return true;
+      const result = await getAllThreadsByUserTool.invoke({
+        userId: userData.id,
+      });
+      const { redirectThreadId } = JSON.parse(result);
+
+      return `/chat/${redirectThreadId}`;
     },
     async redirect({ url, baseUrl }: Record<string, any>) {
       // After sign in
@@ -76,16 +86,15 @@ export const authOptions = {
 
       if (user) {
         try {
-            // If it's a new sign in, get user from DB
-            const userService = UserService.getInstance();
-            const dbUser = await userService.findByEmail(user.email);
+          // If it's a new sign in, get user from DB
+          const userService = UserService.getInstance();
+          const dbUser = await userService.findByEmail(user.email);
 
-            if (dbUser) {
-                token.userId = dbUser._id.toString();
-
-            }
+          if (dbUser) {
+            token.userId = dbUser._id.toString();
+          }
         } catch (error) {
-            console.error("Error occurred while fetching user from DB:", error);
+          console.error("Error occurred while fetching user from DB:", error);
         }
       }
       return token;
