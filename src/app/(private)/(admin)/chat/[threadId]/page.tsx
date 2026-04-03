@@ -1,11 +1,12 @@
-"use client";
 import ChatPanel from "@/components/chat/ChatPanel";
 import SideBar from "@/components/chat/SideBar";
-import { useSession } from "next-auth/react";
 
-export default function Page() {
-
-
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ threadId: string }>;
+}) {
+  const { threadId } = await params;
   return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-50 text-slate-900">
       <SideBar />

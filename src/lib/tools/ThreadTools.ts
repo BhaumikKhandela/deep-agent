@@ -3,6 +3,7 @@ import fs from "fs";
 import { z } from "zod";
 import { tool } from "@langchain/core/tools";
 import { v4 as uuidv4 } from "uuid";
+import { Thread } from "@/store/threadSlice";
 const ROOT = process.cwd();
 const CHAT_HISTORY_DIR = path.join(ROOT, "public", "threads");
 
@@ -49,7 +50,7 @@ export const createThreadHistoryTool = tool(
       threads.push(newThread);
 
       fs.writeFileSync(HISTORY_FILE, JSON.stringify(threads, null, 2), "utf-8");
-        return JSON.stringify(newThread);
+      return JSON.stringify(newThread);
     } catch (error) {
       console.error("Error creating thread:", error);
       return "Failed to create thread";
@@ -168,11 +169,49 @@ export const getAllThreadsByUserTool = tool(
       }
 
       const data = fs.readFileSync(HISTORY_FILE, "utf-8");
-      const threads = JSON.parse(data);
+      const threads = JSON.parse(data) as Thread[];
 
-      const userThreads = threads.filter((t: any) => t.userId === userId);
+      const userThreads = threads.filter((t: Thread) => t.userId === userId);
 
-      return JSON.stringify(userThreads);
+      if (userThreads.length === 0) {
+        const newThread = {
+          threadId: uuidv4(),
+          userId,
+          title: "New Thread",
+          active: true,
+          createdAt: new Date().toISOString(),
+        };
+        threads.push(newThread);
+        fs.writeFileSync(
+          HISTORY_FILE,
+          JSON.stringify(threads, null, 2),
+          "utf-8",
+        );
+        return JSON.stringify({ threads: [newThread], redirectThreadId: newThread.threadId });
+      }
+
+      let activeThread = userThreads.find((t: Thread) => t.active);
+
+      if (!activeThread) {
+        activeThread = userThreads[0];
+        activeThread.active = true;
+
+        const index = threads.findIndex(
+          (t: Thread) => t.threadId === activeThread!.threadId,
+        );
+        if (index >= 0) {
+          threads[index] = activeThread;
+        }
+        fs.writeFileSync(
+          HISTORY_FILE,
+          JSON.stringify(threads, null, 2),
+          "utf-8",
+        );
+      }
+      return JSON.stringify({
+        threads: userThreads,
+        redirectThreadId: activeThread.threadId,
+      });
     } catch (error) {
       console.error("Error fetching all threads for user:", error);
       return "[]";
